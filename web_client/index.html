@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Médico | Inicio</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            height: 100vh;
+            background: linear-gradient(135deg, #f3e5f5 0%, #e0f7fa 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .header h1 {
+            color: #4a148c;
+            font-size: 2.5rem;
+            margin: 0;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .header p {
+            color: #78909c;
+            font-size: 1.1rem;
+            margin-top: 10px;
+        }
+
+        .container {
+            display: flex;
+            gap: 40px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        /* TARJETAS DE ACCESO */
+        .card {
+            background: white;
+            width: 280px;
+            padding: 40px 30px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none; /* Quitar subrayado de link */
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        /* Decoración superior de las tarjetas */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+        }
+
+        .card.pacientes::before { background: #00bcd4; } /* Turquesa */
+        .card.medicos::before { background: #7e57c2; }   /* Morado */
+
+        .icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .card h2 {
+            margin: 0;
+            color: #37474f;
+            font-size: 1.5rem;
+        }
+
+        .card p {
+            color: #90a4ae;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+
+        .btn-access {
+            margin-top: 25px;
+            padding: 10px 25px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            transition: 0.3s;
+        }
+
+        .card.pacientes .btn-access {
+            background-color: #e0f7fa;
+            color: #006064;
+            border: 1px solid #b2ebf2;
+        }
+
+        .card.medicos .btn-access {
+            background-color: #ede7f6;
+            color: #4527a0;
+            border: 1px solid #d1c4e9;
+        }
+
+        .card:hover .btn-access {
+            background-color: #37474f;
+            color: white;
+            border-color: #37474f;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Sistema de Gestión Médica</h1>
+        <p>Arquitectura de Microservicios Distribuida</p>
+    </div>
+
+    <div class="container">
+        <a href="ui_pacientes.html" class="card pacientes">
+            <span class="icon">🏥</span>
+            <h2>Módulo Pacientes</h2>
+            <p>Registro, actualización de domicilio y validación de identidad de pacientes.</p>
+            <div class="btn-access">Ingresar ➔</div>
+        </a>
+
+        <a href="ui_medicos.html" class="card medicos">
+            <span class="icon">👨‍⚕️</span>
+            <h2>Módulo Médicos</h2>
+            <p>Gestión de personal médico, especialidades y configuración de agendas.</p>
+            <div class="btn-access">Ingresar ➔</div>
+        </a>
+    </div>
+
+</body>
+</html>
