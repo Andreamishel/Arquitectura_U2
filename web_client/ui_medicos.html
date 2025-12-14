@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Módulo de Médicos</title>
+    <style>
+        :root { --primary: #7e57c2; --secondary: #00bcd4; --bg: #f3e5f5; --white: #ffffff; --text: #4a148c; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .nav-bar { margin-bottom: 30px; background: white; padding: 10px 20px; border-radius: 50px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .nav-bar a { text-decoration: none; color: var(--text); font-weight: bold; margin: 0 15px; }
+        h1 { color: var(--text); border-bottom: 3px solid var(--primary); padding-bottom: 10px; }
+        .container { width: 100%; max-width: 700px; display: flex; flex-direction: column; gap: 25px; }
+        .card { background: var(--white); padding: 30px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); border-top: 5px solid var(--primary); }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .full-width { grid-column: span 2; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; color: #6a1b9a; font-size: 0.85rem; }
+        input, select { width: 100%; padding: 10px; border: 2px solid #e1bee7; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; margin-top: 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; transition: 0.3s; }
+        .btn-morado { background: var(--primary); }
+        .btn-rosa { background: #ab47bc; }
+        .btn-info { background: #00bcd4; }
+        .result { margin-top: 15px; padding: 12px; border-radius: 8px; text-align: center; display: none; }
+        .success { background: #e0f2f1; color: #00695c; }
+        .error { background: #ffebee; color: #c62828; }
+        .slot-list { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; justify-content: center; }
+        .slot-item { background: #ede7f6; color: #4527a0; padding: 5px 10px; border-radius: 5px; border: 1px solid #d1c4e9; }
+    </style>
+</head>
+<body>
+
+    <nav class="nav-bar">
+        <a href="ui_pacientes.html">⬅️ Ir a Pacientes</a>
+        <span>|</span>
+        <a href="index.html">🏠 Inicio</a>
+    </nav>
+
+    <h1>Gestión de Médicos</h1>
+
+    <div class="container">
+        <div class="card">
+            <h2> Registrar Nuevo Médico</h2>
+            <div class="form-grid">
+                <div class="full-width"><label>Nombres</label><input type="text" id="m_nombre" value="Dr. House"></div>
+                <div class="full-width"><label>Apellidos</label><input type="text" id="m_apellido" value="Gregory"></div>
+                <div class="full-width"><label>Especialidad</label><input type="text" id="m_esp" value="Diagnóstico"></div>
+            </div>
+            <button class="btn-morado" onclick="registrar()">Guardar Médico</button>
+            <div id="res_reg" class="result"></div>
+        </div>
+
+        <div class="card" style="border-top-color: #ab47bc;">
+            <h2> Configurar Agenda</h2>
+            <div class="form-grid">
+                <div class="full-width"><label>ID del Médico (UUID)</label><input type="text" id="h_id" placeholder="Pegar ID aquí..."></div>
+                <div><label>Día</label>
+                    <select id="h_dia">
+                        <option value="LUNES">LUNES</option><option value="MARTES">MARTES</option>
+                        <option value="MIERCOLES">MIERCOLES</option><option value="JUEVES">JUEVES</option>
+                        <option value="VIERNES">VIERNES</option>
+                    </select>
+                </div>
+                <div><label>Duración (min)</label><input type="number" id="h_dur" value="30"></div>
+                <div><label>Inicio</label><input type="time" id="h_inicio" value="08:00"></div>
+                <div><label>Fin</label><input type="time" id="h_fin" value="12:00"></div>
+            </div>
+            <button class="btn-rosa" onclick="configurar()"> Generar Slots</button>
+            <div id="res_conf" class="result"></div>
+        </div>
+
+        <div class="card" style="border-top-color: #00bcd4;">
+            <h2> Ver Disponibilidad</h2>
+            <div class="form-grid">
+                <div class="full-width"><label>ID del Médico</label><input type="text" id="d_id"></div>
+                <div class="full-width"><label>Fecha</label><input type="date" id="d_fecha"></div>
+            </div>
+            <button class="btn-info" onclick="consultarDisponibilidad()"> Buscar Turnos</button>
+            <div id="res_disp" class="result"></div>
+            <div id="slot_container" class="slot-list"></div>
+        </div>
+    </div>
+
+    <script>
+        // IMPORTANTE: Puerto 5002 para pruebas directas con microservicio médicos
+        const API = "http://localhost:5002";
+
+        async function sendRequest(url, method, data, resId) {
+            const display = document.getElementById(resId);
+            display.style.display = 'block'; display.innerText = "⏳ Procesando...";
+            display.className = 'result'; 
+            try {
+                const opts = { method: method, headers: { 'Content-Type': 'application/json' } };
+                if (data) opts.body = JSON.stringify(data);
+                const res = await fetch(url, opts);
+                const json = await res.json();
+                if (res.ok) {
+                    display.className = 'result success';
+                    let msg = json.id ? `ID: ${json.id}` : (json.mensaje || 'OK');
+                    if(json.slots_creados) msg += ` (${json.slots_creados} Slots)`;
+                    display.innerText = `✅ Éxito: ${msg}`;
+                    return json;
+                } else {
+                    throw new Error(json.error || JSON.stringify(json));
+                }
+            } catch (e) {
+                display.className = 'result error'; display.innerText = `❌ Error: ${e.message}`;
+            }
+        }
+
+        function registrar() {
+            sendRequest(`${API}/crear`, 'POST', {
+                nombre: document.getElementById('m_nombre').value,
+                apellido: document.getElementById('m_apellido').value,
+                especialidad: document.getElementById('m_esp').value
+            }, 'res_reg');
+        }
+
+        function configurar() {
+            sendRequest(`${API}/configurar-horario`, 'POST', {
+                medicoId: document.getElementById('h_id').value,
+                dia: document.getElementById('h_dia').value,
+                horaInicio: document.getElementById('h_inicio').value,
+                horaFin: document.getElementById('h_fin').value,
+                duracion: document.getElementById('h_dur').value
+            }, 'res_conf');
+        }
+
+        async function consultarDisponibilidad() {
+            const id = document.getElementById('d_id').value;
+            const fecha = document.getElementById('d_fecha').value;
+            const container = document.getElementById('slot_container');
+            container.innerHTML = "";
+            
+            try {
+                const res = await fetch(`${API}/disponibilidad?medicoId=${id}&fecha=${fecha}`);
+                const json = await res.json();
+                if(res.ok) {
+                    document.getElementById('res_disp').style.display = 'none';
+                    if(json.length === 0) alert("No hay turnos disponibles ese día");
+                    json.forEach(slot => {
+                        const div = document.createElement('div');
+                        div.className = 'slot-item';
+                        div.innerText = `🕒 ${slot.horaInicio} - ${slot.horaFin}`;
+                        container.appendChild(div);
+                    });
+                } else { alert(json.error); }
+            } catch(e) { alert("Error de conexión"); }
+        }
+    </script>
+</body>
+</html>

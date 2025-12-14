@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  gateway:
+    build: 
+      context: ./api_gateway
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    depends_on:
+      - medicos
+      - pacientes
+
+  medicos:
+    build: 
+      context: ./microservicio_medicos
+      dockerfile: Dockerfile
+    ports:
+      - "5002:5002"
+    volumes:
+      - ./microservicio_medicos:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+
+  pacientes:
+    build: 
+      context: ./microservicio_pacientes
+      dockerfile: Dockerfile
+    ports:
+      - "5003:5003"
+    volumes:
+      - ./microservicio_pacientes:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+
+  # Servicios de tu compañero (descomentar cuando se fusionen)
+  # agendamiento: ...
+  # notificaciones: ...

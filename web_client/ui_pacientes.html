@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Módulo de Pacientes</title>
+    <style>
+        :root {
+            --primary: #00bcd4; /* Turquesa */
+            --secondary: #7e57c2; /* Morado Suave */
+            --bg: #eceff1;
+            --white: #ffffff;
+            --text: #37474f;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* NAVEGACIÓN */
+        .nav-bar {
+            margin-bottom: 30px;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .nav-bar a {
+            text-decoration: none;
+            color: var(--secondary);
+            font-weight: bold;
+            margin: 0 15px;
+            font-size: 0.95rem;
+            transition: color 0.3s;
+        }
+        .nav-bar a:hover { color: var(--primary); }
+
+        /* TÍTULO */
+        h1 {
+            color: var(--secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 30px;
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 10px;
+        }
+
+        /* CONTENEDOR PRINCIPAL */
+        .container {
+            width: 100%;
+            max-width: 700px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        /* TARJETAS */
+        .card {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border-top: 5px solid var(--primary);
+            transition: transform 0.2s;
+        }
+        
+        .card:hover { transform: translateY(-2px); }
+
+        .card h2 {
+            margin-top: 0;
+            color: var(--text);
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* FORMULARIOS */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .full-width { grid-column: span 2; }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #546e7a;
+            font-size: 0.85rem;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #cfd8dc;
+            border-radius: 8px;
+            box-sizing: border-box;
+            background: #fafafa;
+            font-family: inherit;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+        }
+
+        /* BOTONES */
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.95rem;
+            color: white;
+            transition: 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .btn-turquesa { background: var(--primary); }
+        .btn-turquesa:hover { background: #0097a7; }
+
+        .btn-morado { background: var(--secondary); }
+        .btn-morado:hover { background: #5e35b1; }
+
+        .btn-orange { background: #ffa726; }
+        .btn-orange:hover { background: #fb8c00; }
+
+        /* RESULTADOS */
+        .result {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 500;
+            display: none;
+        }
+        .success { background: #e0f2f1; color: #00695c; border: 1px solid #b2dfdb; }
+        .error { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
+
+    </style>
+</head>
+<body>
+
+    <nav class="nav-bar">
+        <a href="index.html">🏠 Inicio</a>
+        <span>|</span>
+        <a href="ui_medicos.html">Ir a Médicos 👨‍⚕️➡️</a>
+    </nav>
+
+    <h1>Gestión de Pacientes</h1>
+
+    <div class="container">
+
+        <div class="card">
+            <h2> Registrar Nuevo Paciente</h2>
+            <div class="form-grid">
+                <div>
+                    <label>Tipo ID</label>
+                    <select id="p_tipoId">
+                        <option value="Cedula">Cédula</option>
+                        <option value="Pasaporte">Pasaporte</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Número Identificación</label>
+                    <input type="text" id="p_id" placeholder="Ej: 1712345678" value="1755555555">
+                </div>
+                <div class="full-width">
+                    <label>Nombre Completo</label>
+                    <input type="text" id="p_nombre" placeholder="Nombre y Apellido" value="Britha Test">
+                </div>
+                <div>
+                    <label>Género</label>
+                    <select id="p_genero">
+                        <option value="Masculino">Masculino</option>
+                        <option value="Femenino">Femenino</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Fecha Nacimiento</label>
+                    <input type="date" id="p_fecha" value="1998-05-20">
+                </div>
+                <div>
+                    <label>Email</label>
+                    <input type="email" id="p_email" value="britha@mail.com">
+                </div>
+                <div>
+                    <label>Teléfono</label>
+                    <input type="text" id="p_tel" value="0991234567">
+                </div>
+                
+                <div class="full-width" style="border-top: 1px solid #eee; margin-top: 5px; padding-top: 10px;">
+                    <label style="color: var(--secondary);">📍 Dirección Domiciliaria</label>
+                </div>
+                <div style="grid-column: span 1.5;">
+                    <input type="text" id="p_calle" placeholder="Calle Principal">
+                </div>
+                <div>
+                    <input type="text" id="p_num" placeholder="No.">
+                </div>
+                <div class="full-width">
+                    <input type="text" id="p_ciudad" placeholder="Ciudad (Ej: Quito)" value="Quito">
+                </div>
+            </div>
+            <button class="btn-turquesa" onclick="registrar()">Guardar Registro</button>
+            <div id="res_reg" class="result"></div>
+        </div>
+
+        <div class="card" style="border-top-color: var(--secondary);">
+            <h2> Consultar / Validar</h2>
+            <p style="font-size: 0.9rem; color: #78909c; margin-top: 0;">Verifica si una cédula ya existe en el sistema.</p>
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="c_id" placeholder="Ingrese Cédula">
+                <button class="btn-morado" style="width: 150px; margin-top: 0;" onclick="consultar()">Verificar</button>
+            </div>
+            <div id="res_cons" class="result"></div>
+        </div>
+
+        <div class="card" style="border-top-color: #ffa726;">
+            <h2> Actualizar Domicilio</h2>
+            <p style="font-size: 0.9rem; color: #78909c; margin-top: 0;">Requiere el ID interno (UUID) del paciente.</p>
+            <div class="form-grid">
+                <div class="full-width">
+                    <label>ID del Paciente (UUID)</label>
+                    <input type="text" id="u_id" placeholder="Pegar ID aquí...">
+                </div>
+                <div class="full-width">
+                    <label>Nueva Calle</label>
+                    <input type="text" id="u_calle">
+                </div>
+                <div>
+                    <label>Nuevo Número</label>
+                    <input type="text" id="u_num">
+                </div>
+                <div>
+                    <label>Nueva Ciudad</label>
+                    <input type="text" id="u_ciudad">
+                </div>
+            </div>
+            <button class="btn-orange" onclick="actualizar()">Actualizar Dirección</button>
+            <div id="res_upd" class="result"></div>
+        </div>
+
+    </div>
+
+    <script>
+        // URL DEL GATEWAY (Puerto 5000)
+        const API = "http://localhost:5000/api/pacientes";
+
+        // Función genérica para enviar datos
+        async function sendRequest(url, method, data, resId) {
+            const display = document.getElementById(resId);
+            display.style.display = 'block';
+            display.className = 'result';
+            display.style.backgroundColor = '#eceff1';
+            display.style.color = '#37474f';
+            display.innerText = "⏳ Procesando solicitud...";
+
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const json = await response.json();
+
+                if (response.ok) {
+                    display.className = 'result success';
+                    let msg = json.id ? `ID Generado: ${json.id}` : (json.mensaje || 'Operación Exitosa');
+                    display.innerText = `✅ Éxito: ${msg}`;
+                } else {
+                    display.className = 'result error';
+                    display.innerText = `❌ Error: ${json.error || JSON.stringify(json)}`;
+                }
+            } catch (error) {
+                display.className = 'result error';
+                display.innerText = "❌ Error de conexión (Verificar Docker)";
+            }
+        }
+
+        // 1. REGISTRAR
+        function registrar() {
+            const data = {
+                tipoIdentificacion: document.getElementById('p_tipoId').value,
+                identificacion: document.getElementById('p_id').value,
+                nombre: document.getElementById('p_nombre').value,
+                genero: document.getElementById('p_genero').value,
+                fechaNacimiento: document.getElementById('p_fecha').value,
+                email: document.getElementById('p_email').value,
+                telefono: document.getElementById('p_tel').value,
+                calle: document.getElementById('p_calle').value,
+                numero: document.getElementById('p_num').value,
+                ciudad: document.getElementById('p_ciudad').value
+            };
+            sendRequest(`${API}/registrar`, 'POST', data, 'res_reg');
+        }
+
+        // 2. CONSULTAR (GET)
+        async function consultar() {
+            const id = document.getElementById('c_id').value;
+            if(!id) return alert("Ingrese una cédula");
+
+            const display = document.getElementById('res_cons');
+            display.style.display = 'block';
+            display.innerText = "Consultando...";
+            display.className = 'result';
+
+            try {
+                const r = await fetch(`${API}/validar/${id}`);
+                const j = await r.json();
+                
+                if (j.existe) {
+                    display.className = 'result success';
+                    display.innerHTML = `✅ <b>SI EXISTE:</b> El paciente ${id} está registrado.`;
+                } else {
+                    display.className = 'result error';
+                    display.innerHTML = `❌ <b>NO EXISTE:</b> No hay registros de ${id}.`;
+                }
+            } catch (e) {
+                display.className = 'result error';
+                display.innerText = "❌ Error de conexión";
+            }
+        }
+
+        // 3. ACTUALIZAR (PUT)
+        function actualizar() {
+            const id = document.getElementById('u_id').value;
+            if(!id) return alert("Ingrese el ID UUID del paciente");
+
+            const data = {
+                calle: document.getElementById('u_calle').value,
+                numero: document.getElementById('u_num').value,
+                ciudad: document.getElementById('u_ciudad').value
+            };
+            sendRequest(`${API}/${id}/domicilio`, 'PUT', data, 'res_upd');
+        }
+    </script>
+</body>
+</html>
