@@ -13,7 +13,7 @@ URLS = {
     "notificaciones": "http://notificaciones:5004"
 }
 
-@app.route('/api/<servicio>/<path:ruta>', methods=['GET', 'POST', 'PUT', 'DELETE'])
+@app.route('/api/<servicio>/<path:ruta>', methods=['GET', 'POST', 'PUT', 'DELETE', 'PATCH'])
 def gateway(servicio, ruta):
     if servicio not in URLS:
         return jsonify({"error": "Servicio no encontrado"}), 404
@@ -24,6 +24,7 @@ def gateway(servicio, ruta):
         resp = requests.request(
             method=request.method,
             url=url_destino,
+            params=request.args, 
             json=request.get_json() if request.is_json else None
         )
         return (resp.content, resp.status_code, resp.headers.items())

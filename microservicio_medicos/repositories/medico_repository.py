@@ -86,4 +86,17 @@ class SQLiteMedicoRepository:
                 
             return medico
     
-    def findSlotsByMedico(self, medicoId): pass
+    def reservar_slot(self, slot_id):
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
+            # 1. Validar que el slot exista y esté DISPONIBLE
+            cursor.execute('SELECT estado FROM slots WHERE id = ?', (slot_id,))
+            row = cursor.fetchone()
+            
+            if not row or row[0] != 'DISPONIBLE':
+                return False
+            
+            # 2. Actualizar estado a RESERVADO
+            cursor.execute('UPDATE slots SET estado = ? WHERE id = ?', ('RESERVADO', slot_id))
+            conn.commit()
+            return cursor.rowcount > 0

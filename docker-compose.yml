@@ -33,6 +33,24 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
 
-  # Servicios de tu compañero (descomentar cuando se fusionen)
-  # agendamiento: ...
-  # notificaciones: ...
+  agendamiento:
+    build: 
+      context: ./microservicio_agendamiento
+      dockerfile: Dockerfile
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./microservicio_agendamiento:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+
+  notificaciones:
+    build: 
+      context: ./microservicio_notificaciones
+      dockerfile: Dockerfile
+    ports:
+      - "5004:5004"
+    volumes:
+      - ./microservicio_notificaciones:/app
+    environment:
+      - PYTHONUNBUFFERED=1
