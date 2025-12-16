@@ -100,3 +100,34 @@ class SQLiteMedicoRepository:
             cursor.execute('UPDATE slots SET estado = ? WHERE id = ?', ('RESERVADO', slot_id))
             conn.commit()
             return cursor.rowcount > 0
+        
+    # --- LISTAR TODOS ---
+    def find_all(self):
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
+            cursor.execute('SELECT * FROM medicos')
+            rows = cursor.fetchall()
+            return self._map_rows_to_medicos(cursor, rows) # Usamos helper para no repetir código
+
+    # --- BUSCAR POR NOMBRE O APELLIDO ---
+    def search(self, query):
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
+            param = f"%{query}%"
+            cursor.execute('''
+                SELECT * FROM medicos 
+                WHERE nombre LIKE ? OR apellido LIKE ? OR especialidad LIKE ?
+            ''', (param, param, param))
+            rows = cursor.fetchall()
+            return self._map_rows_to_medicos(cursor, rows)
+
+    # Helper interno para no repetir la lógica de reconstrucción de objetos
+    def _map_rows_to_medicos(self, cursor, rows):
+        medicos = []
+        for row in rows:
+            # row: 0:id, 1:espId, 2:nombre, 3:apellido, 4:especialidad
+            m = Medico(row[2], row[3], row[4])
+            m.id = uuid.UUID(row[0])
+            m.especialidadId = uuid.UUID(row[1])
+            medicos.append(m)
+        return medicos

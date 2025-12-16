@@ -103,3 +103,57 @@ class SQLitePacienteRepository:
             cursor = conn.cursor()
             cursor.execute('SELECT id FROM pacientes WHERE identificacion = ?', (identificacion,))
             return cursor.fetchone() is not None
+        
+    def find_all(self):
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
+            cursor.execute('SELECT * FROM pacientes')
+            rows = cursor.fetchall()
+            pacientes = []
+            
+            for row in rows:
+                try:
+                    # Reconstrucción (Misma lógica que find_by_id)
+                    tipo_enum = TipoIdentificacion(row[2])
+                    genero_enum = Genero(row[4])
+                    contacto = DatosContacto(row[6], row[7])
+                    direccion = Direccion(row[8], row[9], row[10])
+                    
+                    p = Paciente(row[1], tipo_enum, row[3], genero_enum, row[5], contacto, direccion)
+                    p.id = row[0]
+                    p.estado = EstadoPaciente(row[11])
+                    
+                    pacientes.append(p)
+                except ValueError:
+                    continue # Saltar registros corruptos si los hubiera
+            
+            return pacientes
+        
+    def search(self, query):
+        """Busca por identificación exacta O por nombre parcial"""
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
+            # El % sirve para buscar texto que contenga la palabra
+            param = f"%{query}%" 
+            cursor.execute('''
+                SELECT * FROM pacientes 
+                WHERE identificacion LIKE ? OR nombre LIKE ?
+            ''', (param, param))
+            
+            rows = cursor.fetchall()
+            pacientes = []
+            
+            for row in rows:
+                try:
+                    # Reconstrucción (Mismo código que en find_all)
+                    tipo_enum = TipoIdentificacion(row[2])
+                    genero_enum = Genero(row[4])
+                    contacto = DatosContacto(row[6], row[7])
+                    direccion = Direccion(row[8], row[9], row[10])
+                    p = Paciente(row[1], tipo_enum, row[3], genero_enum, row[5], contacto, direccion)
+                    p.id = row[0]
+                    p.estado = EstadoPaciente(row[11])
+                    pacientes.append(p)
+                except Exception:
+                    continue
+            return pacientes

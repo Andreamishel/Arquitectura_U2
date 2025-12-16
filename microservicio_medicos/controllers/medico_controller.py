@@ -99,3 +99,34 @@ def reservar_slot(slot_id):
             return jsonify({"error": "No se pudo reservar o slot no encontrado"}), 404
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+# Helper para JSON
+def medico_to_dict(m: Medico):
+    return {
+        "id": str(m.id),
+        "nombre": m.nombre,
+        "apellido": m.apellido,
+        "especialidad": m.especialidad
+    }
+
+# 5. LISTAR TODOS
+@controller.route('/', methods=['GET'])
+def listar_todos():
+    try:
+        medicos = repo.find_all()
+        return jsonify([medico_to_dict(m) for m in medicos]), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# 6. BUSCAR
+@controller.route('/buscar', methods=['GET'])
+def buscar_medicos():
+    try:
+        query = request.args.get('q')
+        if not query:
+            return jsonify({"error": "Falta parámetro de búsqueda"}), 400
+        
+        medicos = repo.search(query)
+        return jsonify([medico_to_dict(m) for m in medicos]), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

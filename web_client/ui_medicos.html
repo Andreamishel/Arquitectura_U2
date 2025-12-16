@@ -5,24 +5,128 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Módulo de Médicos</title>
     <style>
-        :root { --primary: #7e57c2; --secondary: #00bcd4; --bg: #f3e5f5; --white: #ffffff; --text: #4a148c; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .nav-bar { margin-bottom: 30px; background: white; padding: 10px 20px; border-radius: 50px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .nav-bar a { text-decoration: none; color: var(--text); font-weight: bold; margin: 0 15px; }
-        h1 { color: var(--text); border-bottom: 3px solid var(--primary); padding-bottom: 10px; }
-        .container { width: 100%; max-width: 700px; display: flex; flex-direction: column; gap: 25px; }
-        .card { background: var(--white); padding: 30px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); border-top: 5px solid var(--primary); }
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        :root { 
+            --primary: #7e57c2; /* Morado Principal */
+            --secondary: #00bcd4; /* Turquesa */
+            --bg: #f3e5f5; /* Fondo lila muy claro */
+            --white: #ffffff; 
+            --text: #4a148c; /* Texto morado oscuro */
+        }
+
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background-color: var(--bg); 
+            margin: 0; 
+            padding: 20px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+        }
+
+        /* NAVEGACIÓN */
+        .nav-bar { 
+            margin-bottom: 30px; 
+            background: white; 
+            padding: 10px 20px; 
+            border-radius: 50px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
+        }
+        .nav-bar a { 
+            text-decoration: none; 
+            color: var(--text); 
+            font-weight: bold; 
+            margin: 0 15px; 
+        }
+
+        /* TÍTULOS */
+        h1 { 
+            color: var(--text); 
+            border-bottom: 3px solid var(--primary); 
+            padding-bottom: 10px; 
+        }
+
+        .container { 
+            width: 100%; 
+            max-width: 800px; /* Aumentado para mejor visualización de tabla */
+            display: flex; 
+            flex-direction: column; 
+            gap: 25px; 
+        }
+
+        /* TARJETAS */
+        .card { 
+            background: var(--white); 
+            padding: 30px; 
+            border-radius: 15px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
+            border-top: 5px solid var(--primary); 
+        }
+
+        .form-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 15px; 
+        }
+        
         .full-width { grid-column: span 2; }
-        label { display: block; margin-bottom: 5px; font-weight: 600; color: #6a1b9a; font-size: 0.85rem; }
-        input, select { width: 100%; padding: 10px; border: 2px solid #e1bee7; border-radius: 8px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; margin-top: 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; transition: 0.3s; }
+
+        /* INPUTS Y LABELS */
+        label { 
+            display: block; 
+            margin-bottom: 5px; 
+            font-weight: 600; 
+            color: #6a1b9a; 
+            font-size: 0.85rem; 
+        }
+
+        input, select { 
+            width: 100%; 
+            padding: 10px; 
+            border: 2px solid #e1bee7; 
+            border-radius: 8px; 
+            box-sizing: border-box; 
+            color: #4a148c;
+        }
+
+        /* Placeholder gris (estilo plomo) */
+        ::placeholder {
+            color: #b0bec5; 
+            opacity: 1;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: #fff;
+        }
+
+        /* BOTONES */
+        button { 
+            width: 100%; 
+            padding: 12px; 
+            margin-top: 20px; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            color: white; 
+            transition: 0.3s; 
+        }
+
         .btn-morado { background: var(--primary); }
+        .btn-morado:hover { background: #5e35b1; }
+
         .btn-rosa { background: #ab47bc; }
+        .btn-rosa:hover { background: #8e24aa; }
+
         .btn-info { background: #00bcd4; }
+        .btn-info:hover { background: #0097a7; }
+
+        /* RESULTADOS Y SLOTS */
         .result { margin-top: 15px; padding: 12px; border-radius: 8px; text-align: center; display: none; }
         .success { background: #e0f2f1; color: #00695c; }
         .error { background: #ffebee; color: #c62828; }
+
         .slot-list { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; justify-content: center; }
         .slot-item { background: #ede7f6; color: #4527a0; padding: 5px 10px; border-radius: 5px; border: 1px solid #d1c4e9; }
     </style>
@@ -30,39 +134,90 @@
 <body>
 
     <nav class="nav-bar">
-        <a href="ui_pacientes.html">⬅️ Ir a Pacientes</a>
-        <span>|</span>
         <a href="index.html">🏠 Inicio</a>
+        <span>|</span>
+        <a href="ui_pacientes.html">🏥 Ir a Pacientes</a>
+        <span>|</span>
+        <a href="ui_agendamiento.html">📅 Ir a Agendamiento</a>
     </nav>
 
     <h1>Gestión de Médicos</h1>
 
     <div class="container">
+        
         <div class="card">
             <h2> Registrar Nuevo Médico</h2>
             <div class="form-grid">
-                <div class="full-width"><label>Nombres</label><input type="text" id="m_nombre" value="Dr. House"></div>
-                <div class="full-width"><label>Apellidos</label><input type="text" id="m_apellido" value="Gregory"></div>
-                <div class="full-width"><label>Especialidad</label><input type="text" id="m_esp" value="Diagnóstico"></div>
+                <div class="full-width">
+                    <label>Nombres</label>
+                    <input type="text" id="m_nombre" placeholder="Ej: Dr. House">
+                </div>
+                <div class="full-width">
+                    <label>Apellidos</label>
+                    <input type="text" id="m_apellido" placeholder="Ej: Gregory">
+                </div>
+                <div class="full-width">
+                    <label>Especialidad</label>
+                    <input type="text" id="m_esp" placeholder="Ej: Diagnóstico">
+                </div>
             </div>
             <button class="btn-morado" onclick="registrar()">Guardar Médico</button>
             <div id="res_reg" class="result"></div>
         </div>
 
+        <div class="card" style="border-top-color: #7e57c2;">
+            <h2> Directorio Médico</h2>
+            
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <input type="text" id="m_search" placeholder="Buscar por Nombre o Apellido...">
+                <button class="btn-info" style="width: 150px; margin-top:0;" onclick="buscarMedicos()">🔍 Buscar</button>
+                <button class="btn-morado" style="width: 150px; margin-top:0;" onclick="cargarMedicos()">🔄 Todos</button>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table id="tabla_medicos" style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                    <thead>
+                        <tr style="background:#ede7f6; color:#4527a0;">
+                            <th style="padding:10px; text-align: left;">Nombre</th>
+                            <th style="text-align: left;">Especialidad</th>
+                            <th style="text-align: left;">ID (UUID)</th>
+                            <th style="text-align: left;">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
         <div class="card" style="border-top-color: #ab47bc;">
             <h2> Configurar Agenda</h2>
             <div class="form-grid">
-                <div class="full-width"><label>ID del Médico (UUID)</label><input type="text" id="h_id" placeholder="Pegar ID aquí..."></div>
-                <div><label>Día</label>
+                <div class="full-width">
+                    <label>ID del Médico (UUID)</label>
+                    <input type="text" id="h_id" placeholder="Pegar ID aquí...">
+                </div>
+                <div>
+                    <label>Día</label>
                     <select id="h_dia">
-                        <option value="LUNES">LUNES</option><option value="MARTES">MARTES</option>
-                        <option value="MIERCOLES">MIERCOLES</option><option value="JUEVES">JUEVES</option>
+                        <option value="LUNES">LUNES</option>
+                        <option value="MARTES">MARTES</option>
+                        <option value="MIERCOLES">MIERCOLES</option>
+                        <option value="JUEVES">JUEVES</option>
                         <option value="VIERNES">VIERNES</option>
                     </select>
                 </div>
-                <div><label>Duración (min)</label><input type="number" id="h_dur" value="30"></div>
-                <div><label>Inicio</label><input type="time" id="h_inicio" value="08:00"></div>
-                <div><label>Fin</label><input type="time" id="h_fin" value="12:00"></div>
+                <div>
+                    <label>Duración (min)</label>
+                    <input type="number" id="h_dur" value="30">
+                </div>
+                <div>
+                    <label>Inicio</label>
+                    <input type="time" id="h_inicio" value="08:00">
+                </div>
+                <div>
+                    <label>Fin</label>
+                    <input type="time" id="h_fin" value="12:00">
+                </div>
             </div>
             <button class="btn-rosa" onclick="configurar()"> Generar Slots</button>
             <div id="res_conf" class="result"></div>
@@ -71,13 +226,20 @@
         <div class="card" style="border-top-color: #00bcd4;">
             <h2> Ver Disponibilidad</h2>
             <div class="form-grid">
-                <div class="full-width"><label>ID del Médico</label><input type="text" id="d_id"></div>
-                <div class="full-width"><label>Fecha</label><input type="date" id="d_fecha"></div>
+                <div class="full-width">
+                    <label>ID del Médico</label>
+                    <input type="text" id="d_id" placeholder="Pegue el ID del médico">
+                </div>
+                <div class="full-width">
+                    <label>Fecha</label>
+                    <input type="date" id="d_fecha">
+                </div>
             </div>
             <button class="btn-info" onclick="consultarDisponibilidad()"> Buscar Turnos</button>
             <div id="res_disp" class="result"></div>
             <div id="slot_container" class="slot-list"></div>
         </div>
+
     </div>
 
     <script>
@@ -97,7 +259,15 @@
                     display.className = 'result success';
                     let msg = json.id ? `ID: ${json.id}` : (json.mensaje || 'OK');
                     if(json.slots_creados) msg += ` (${json.slots_creados} Slots)`;
-                    display.innerText = `✅ Éxito: ${msg}`;
+                    display.innerText = `✅ Éxito`;
+                    
+                    if(method === 'POST' && url.includes('crear')) {
+                        cargarMedicos(); // Recargar lista al crear
+                        // Limpiar campos
+                        document.getElementById('m_nombre').value = "";
+                        document.getElementById('m_apellido').value = "";
+                        document.getElementById('m_esp').value = "";
+                    }
                     return json;
                 } else {
                     throw new Error(json.error || JSON.stringify(json));
@@ -131,21 +301,87 @@
             const container = document.getElementById('slot_container');
             container.innerHTML = "";
             
+            if(!id || !fecha) { alert("Complete ID y Fecha"); return; }
+
             try {
                 const res = await fetch(`${API}/disponibilidad?medicoId=${id}&fecha=${fecha}`);
                 const json = await res.json();
                 if(res.ok) {
                     document.getElementById('res_disp').style.display = 'none';
-                    if(json.length === 0) alert("No hay turnos disponibles ese día");
+                    if(json.length === 0) container.innerHTML = "<p style='color:#777;'>No hay turnos disponibles ese día</p>";
                     json.forEach(slot => {
                         const div = document.createElement('div');
                         div.className = 'slot-item';
+                        // Diferenciar visualmente si está reservado
+                        if(slot.estado === 'RESERVADO') {
+                            div.style.background = '#e0e0e0';
+                            div.style.color = '#999';
+                            div.style.textDecoration = 'line-through';
+                        }
                         div.innerText = `🕒 ${slot.horaInicio} - ${slot.horaFin}`;
                         container.appendChild(div);
                     });
                 } else { alert(json.error); }
             } catch(e) { alert("Error de conexión"); }
         }
+
+        async function cargarMedicos() {
+            const tbody = document.querySelector("#tabla_medicos tbody");
+            tbody.innerHTML = "<tr><td colspan='4' style='text-align:center; color:#777;'>⏳ Cargando...</td></tr>";
+            try {
+                const res = await fetch(`${API}/`); // GET / (Listar todos)
+                const lista = await res.json();
+                tbody.innerHTML = "";
+                
+                if(lista.length === 0) {
+                    tbody.innerHTML = "<tr><td colspan='4' style='text-align:center;'>No hay médicos registrados</td></tr>";
+                } else {
+                    lista.forEach(m => filaMedico(m));
+                }
+            } catch(e) { 
+                tbody.innerHTML = "<tr><td colspan='4' style='color:red; text-align:center;'>Error al cargar</td></tr>"; 
+            }
+        }
+
+        async function buscarMedicos() {
+            const q = document.getElementById('m_search').value;
+            if(!q) return cargarMedicos();
+            
+            const tbody = document.querySelector("#tabla_medicos tbody");
+            tbody.innerHTML = "<tr><td colspan='4' style='text-align:center;'>🔍 Buscando...</td></tr>";
+            try {
+                const res = await fetch(`${API}/buscar?q=${q}`);
+                const lista = await res.json();
+                tbody.innerHTML = "";
+                if(lista.length === 0) tbody.innerHTML = "<tr><td colspan='4' style='text-align:center;'>Sin resultados</td></tr>";
+                lista.forEach(m => filaMedico(m));
+            } catch(e) { alert("Error"); }
+        }
+
+        function filaMedico(m) {
+            const tbody = document.querySelector("#tabla_medicos tbody");
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td style="padding:10px; border-bottom:1px solid #eee; font-weight:bold;">${m.nombre} ${m.apellido}</td>
+                <td style="border-bottom:1px solid #eee;">${m.especialidad}</td>
+                <td style="border-bottom:1px solid #eee; font-family:monospace; font-size:0.85em; color:#666;">${m.id}</td>
+                <td style="border-bottom:1px solid #eee;">
+                    <button style="margin:0; padding:6px 12px; background:#7e57c2; color:white; border:none; border-radius:4px; cursor:pointer; font-size:0.8em;" 
+                    onclick="copiarMedico('${m.id}')">Copiar ID</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        }
+
+        function copiarMedico(id) {
+            document.getElementById('h_id').value = id; // Pegar en Configurar Horario
+            document.getElementById('d_id').value = id; // Pegar en Disponibilidad
+            // Scroll arriba suave
+            document.querySelector('.container').scrollIntoView({behavior: 'smooth'});
+        }
+
+        // Cargar al inicio
+        window.onload = cargarMedicos;
     </script>
 </body>
 </html>

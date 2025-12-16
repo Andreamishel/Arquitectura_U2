@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agendar Cita Médica</title>
+    <style>
+        :root { --primary: #ff9800; --secondary: #e65100; --bg: #fff3e0; --white: #ffffff; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        
+        .nav-bar { background: white; padding: 10px 20px; border-radius: 50px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .nav-bar a { text-decoration: none; color: #3e2723; font-weight: bold; margin: 0 15px; }
+
+        .container { width: 100%; max-width: 800px; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); border-top: 5px solid var(--primary); }
+        
+        h1, h2 { color: var(--secondary); margin-top: 0; }
+        
+        /* ESTILOS DE PASOS Y FORMULARIO */
+        .step { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+        .step:last-child { border-bottom: none; }
+        .step-title { font-size: 1.1rem; font-weight: bold; color: #ef6c00; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .badge { background: var(--primary); color: white; width: 25px; height: 25px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 0.9rem; }
+
+        .form-row { display: flex; gap: 10px; margin-bottom: 10px; }
+        input, select { flex: 1; padding: 10px; border: 2px solid #ffe0b2; border-radius: 8px; }
+        button { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; transition: 0.3s; }
+        .btn-search { background: #fb8c00; }
+        .btn-confirm { background: #2e7d32; width: 100%; font-size: 1.1rem; padding: 15px; margin-top: 10px; }
+        .btn-confirm:disabled { background: #ccc; cursor: not-allowed; }
+
+        /* RESULTADOS DE BÚSQUEDA */
+        .medico-list { display: flex; flex-direction: column; gap: 5px; max-height: 150px; overflow-y: auto; }
+        .medico-item { padding: 10px; background: #fff8e1; border: 1px solid #ffe0b2; border-radius: 5px; cursor: pointer; }
+        .medico-item:hover { background: #ffe0b2; }
+        .medico-item.selected { background: var(--primary); color: white; border-color: var(--secondary); }
+
+        /* SLOTS */
+        .slot-container { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 10px; }
+        .slot-btn { padding: 8px 15px; border: 1px solid #ccc; border-radius: 5px; background: #f5f5f5; cursor: pointer; font-family: monospace; font-size: 1rem; }
+        .slot-btn.selected { background: var(--primary); color: white; transform: scale(1.05); }
+        .slot-btn.disabled { opacity: 0.5; cursor: not-allowed; text-decoration: line-through; }
+
+        /* --- ESTILOS DEL MODAL (POP-UP) --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000;
+            animation: fadeIn 0.3s;
+        }
+        .modal-content {
+            background: white; padding: 30px; border-radius: 15px; text-align: center; width: 90%; max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3); transform: translateY(-20px); animation: slideDown 0.3s forwards;
+        }
+        .icon-success { font-size: 4rem; display: block; margin-bottom: 10px; }
+        .modal-btn { background: var(--primary); margin-top: 20px; width: 100%; }
+        
+        @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
+        @keyframes slideDown { from {transform: translateY(-50px);} to {transform: translateY(0);} }
+
+        .error-msg { color: #c62828; text-align: center; margin-top: 10px; display: none; }
+    </style>
+</head>
+<body>
+
+    <nav class="nav-bar">
+        <a href="index.html">🏠 Inicio</a>
+        <span>|</span>
+        <a href="ui_medicos.html">👨‍⚕️ Ir a Médicos</a>
+        <span>|</span>
+        <a href="ui_pacientes.html">🏥 Ir a Pacientes</a>
+    </nav>
+
+    <div class="container">
+        <h1>📅 Agendamiento de Citas</h1>
+        
+        <div class="step">
+            <div class="step-title"><span class="badge">1</span> Buscar Médico</div>
+            <div class="form-row">
+                <input type="text" id="search_medico" placeholder="Nombre o especialidad...">
+                <button class="btn-search" onclick="buscarMedicos()">🔍 Buscar</button>
+            </div>
+            <div id="lista_medicos" class="medico-list"></div>
+            <input type="hidden" id="selected_medico_id">
+            <input type="hidden" id="selected_medico_name">
+        </div>
+
+        <div class="step">
+            <div class="step-title"><span class="badge">2</span> Elegir Fecha y Turno</div>
+            <div class="form-row">
+                <input type="date" id="fecha_cita" onchange="cargarHorarios()">
+            </div>
+            <div id="slots_area" class="slot-container">
+                <small style="color: #777;">Seleccione un médico y una fecha.</small>
+            </div>
+            <input type="hidden" id="selected_slot_id">
+            <input type="hidden" id="selected_time_text">
+        </div>
+
+        <div class="step">
+            <div class="step-title"><span class="badge">3</span> Confirmar Datos</div>
+            <div class="form-row">
+                <input type="text" id="paciente_id" placeholder="Cédula del Paciente (Ej: 1755555555)">
+                <input type="text" id="motivo" placeholder="Motivo de la consulta">
+            </div>
+            <button id="btn_agendar" class="btn-confirm" onclick="agendarCita()" disabled>Confirmar Cita</button>
+            <div id="error_display" class="error-msg"></div>
+        </div>
+    </div>
+
+    <div id="modalSuccess" class="modal-overlay">
+        <div class="modal-content">
+            <span class="icon-success">✅</span>
+            <h2 style="color: #2e7d32;">¡Cita Confirmada!</h2>
+            <p>La cita ha sido agendada correctamente.</p>
+            
+            <div style="background: #e8f5e9; padding: 10px; border-radius: 8px; margin-top: 15px; font-size: 0.9rem; text-align: left; border: 1px solid #c8e6c9;">
+                <strong>📩 Notificación enviada automáticamente a:</strong>
+                <div id="modal_paciente_email" style="color: #1b5e20; margin-top: 5px;">Cargando contacto...</div>
+            </div>
+
+            <button class="modal-btn" onclick="cerrarModal()">Aceptar</button>
+        </div>
+    </div>
+
+    <script>
+        const API_MEDICOS = "http://localhost:5000/api/medicos";
+        const API_AGENDA = "http://localhost:5000/api/agendamiento";
+        const API_PACIENTES = "http://localhost:5000/api/pacientes"; 
+
+        // 1. BUSCAR MÉDICOS
+        async function buscarMedicos() {
+            const q = document.getElementById('search_medico').value;
+            const listaDiv = document.getElementById('lista_medicos');
+            listaDiv.innerHTML = "Buscando...";
+            try {
+                const url = q ? `${API_MEDICOS}/buscar?q=${q}` : `${API_MEDICOS}/`;
+                const res = await fetch(url);
+                const data = await res.json();
+                listaDiv.innerHTML = "";
+                if(data.length === 0) { listaDiv.innerHTML = "No encontrado."; return; }
+                data.forEach(m => {
+                    const div = document.createElement('div');
+                    div.className = 'medico-item';
+                    div.innerHTML = `<strong>${m.nombre} ${m.apellido}</strong> <small>(${m.especialidad})</small>`;
+                    div.onclick = () => seleccionarMedico(div, m.id, `${m.nombre} ${m.apellido}`);
+                    listaDiv.appendChild(div);
+                });
+            } catch (e) { listaDiv.innerHTML = "Error de conexión."; }
+        }
+
+        function seleccionarMedico(element, id, name) {
+            document.querySelectorAll('.medico-item').forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+            document.getElementById('selected_medico_id').value = id;
+            document.getElementById('selected_medico_name').value = name;
+            cargarHorarios();
+        }
+
+        // 2. CARGAR HORARIOS
+        async function cargarHorarios() {
+            const medicoId = document.getElementById('selected_medico_id').value;
+            const fecha = document.getElementById('fecha_cita').value;
+            const container = document.getElementById('slots_area');
+            if (!medicoId || !fecha) return;
+            container.innerHTML = "⏳...";
+            try {
+                const res = await fetch(`${API_MEDICOS}/disponibilidad?medicoId=${medicoId}&fecha=${fecha}`);
+                const slots = await res.json();
+                container.innerHTML = "";
+                if (slots.length === 0) { container.innerHTML = "🚫 Sin turnos."; return; }
+                slots.forEach(slot => {
+                    const btn = document.createElement('div');
+                    btn.className = 'slot-btn';
+                    btn.innerText = `${slot.horaInicio}`;
+                    if (slot.estado === 'RESERVADO') {
+                        btn.classList.add('disabled');
+                    } else {
+                        btn.onclick = () => seleccionarSlot(btn, slot.id, slot.horaInicio);
+                    }
+                    container.appendChild(btn);
+                });
+            } catch (e) { container.innerHTML = "Error."; }
+        }
+
+        function seleccionarSlot(element, id, time) {
+            document.querySelectorAll('.slot-btn').forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+            document.getElementById('selected_slot_id').value = id;
+            document.getElementById('selected_time_text').value = time;
+            document.getElementById('btn_agendar').disabled = false;
+        }
+
+        // 3. AGENDAR Y NOTIFICAR (Lógica Principal)
+        async function agendarCita() {
+            const btn = document.getElementById('btn_agendar');
+            const errorDiv = document.getElementById('error_display');
+            const cedula = document.getElementById('paciente_id').value;
+            
+            btn.disabled = true;
+            btn.innerText = "Procesando...";
+            errorDiv.style.display = 'none';
+
+            const data = {
+                pacienteId: cedula,
+                medicoId: document.getElementById('selected_medico_id').value,
+                slotId: document.getElementById('selected_slot_id').value,
+                fechaHora: `${document.getElementById('fecha_cita').value} ${document.getElementById('selected_time_text').value}`,
+                motivo: document.getElementById('motivo').value || "Consulta General"
+            };
+
+            try {
+                // A. Agendar Cita
+                const res = await fetch(`${API_AGENDA}/agendar`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const json = await res.json();
+
+                if (res.ok) {
+                    // B. Obtener datos del paciente para mostrar en el popup
+                    mostrarPopupExito(cedula); 
+                } else {
+                    throw new Error(json.error || "Error desconocido");
+                }
+            } catch (e) {
+                errorDiv.style.display = 'block';
+                errorDiv.innerText = `❌ Error: ${e.message}`;
+                btn.disabled = false;
+                btn.innerText = "Confirmar Cita";
+            }
+        }
+
+        async function mostrarPopupExito(cedula) {
+            const modal = document.getElementById('modalSuccess');
+            const emailDiv = document.getElementById('modal_paciente_email');
+            
+            // Mostrar modal inmediatamente
+            modal.style.display = 'flex';
+            
+            try {
+                // Consultamos datos del paciente para mostrar el correo real
+                const res = await fetch(`${API_PACIENTES}/buscar?q=${cedula}`);
+                const pacientes = await res.json();
+                
+                if (pacientes.length > 0) {
+                    // Mostramos nombre y correo encontrados
+                    emailDiv.innerHTML = `
+                        <b>${pacientes[0].nombre}</b><br>
+                        📧 ${pacientes[0].email}<br>
+                        📱 ${pacientes[0].telefono}
+                    `;
+                } else {
+                    emailDiv.innerText = "Datos de contacto registrados en el sistema.";
+                }
+            } catch (e) {
+                emailDiv.innerText = "Enviada al correo registrado.";
+            }
+        }
+
+        function cerrarModal() {
+            document.getElementById('modalSuccess').style.display = 'none';
+            // Recargar página para limpiar
+            location.reload(); 
+        }
+    </script>
+</body>
+</html>

@@ -54,7 +54,7 @@
         /* CONTENEDOR PRINCIPAL */
         .container {
             width: 100%;
-            max-width: 700px;
+            max-width: 800px;
             display: flex;
             flex-direction: column;
             gap: 25px;
@@ -106,6 +106,13 @@
             box-sizing: border-box;
             background: #fafafa;
             font-family: inherit;
+            color: #37474f; /* Color del texto al escribir */
+        }
+
+        /* Estilo para los placeholders (el texto gris de ejemplo) */
+        ::placeholder {
+            color: #b0bec5; /* Gris suave (Plomo) */
+            opacity: 1; 
         }
 
         input:focus, select:focus {
@@ -137,6 +144,9 @@
 
         .btn-orange { background: #ffa726; }
         .btn-orange:hover { background: #fb8c00; }
+        
+        .btn-green { background: #4caf50; }
+        .btn-green:hover { background: #388e3c; }
 
         /* RESULTADOS */
         .result {
@@ -149,6 +159,12 @@
         }
         .success { background: #e0f2f1; color: #00695c; border: 1px solid #b2dfdb; }
         .error { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
+        
+        /* ESTILOS TABLA */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.9rem; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: var(--secondary); color: white; }
+        tr:hover { background-color: #f1f1f1; }
 
     </style>
 </head>
@@ -157,7 +173,9 @@
     <nav class="nav-bar">
         <a href="index.html">🏠 Inicio</a>
         <span>|</span>
-        <a href="ui_medicos.html">Ir a Médicos 👨‍⚕️➡️</a>
+        <a href="ui_medicos.html">👨‍⚕️ Ir a Médicos</a>
+        <span>|</span>
+        <a href="ui_agendamiento.html">📅 Ir a Agendamiento</a>
     </nav>
 
     <h1>Gestión de Pacientes</h1>
@@ -176,11 +194,11 @@
                 </div>
                 <div>
                     <label>Número Identificación</label>
-                    <input type="text" id="p_id" placeholder="Ej: 1712345678" value="1755555555">
+                    <input type="text" id="p_id" placeholder="Ej: 1755555555">
                 </div>
                 <div class="full-width">
                     <label>Nombre Completo</label>
-                    <input type="text" id="p_nombre" placeholder="Nombre y Apellido" value="Britha Test">
+                    <input type="text" id="p_nombre" placeholder="Ej: Britha Test">
                 </div>
                 <div>
                     <label>Género</label>
@@ -191,63 +209,78 @@
                 </div>
                 <div>
                     <label>Fecha Nacimiento</label>
-                    <input type="date" id="p_fecha" value="1998-05-20">
+                    <input type="date" id="p_fecha">
                 </div>
                 <div>
                     <label>Email</label>
-                    <input type="email" id="p_email" value="britha@mail.com">
+                    <input type="email" id="p_email" placeholder="ejemplo@mail.com">
                 </div>
                 <div>
                     <label>Teléfono</label>
-                    <input type="text" id="p_tel" value="0991234567">
+                    <input type="text" id="p_tel" placeholder="Ej: 0991234567">
                 </div>
                 
-                <div class="full-width" style="border-top: 1px solid #eee; margin-top: 5px; padding-top: 10px;">
-                    <label style="color: var(--secondary);">📍 Dirección Domiciliaria</label>
+                <div class="full-width" style="margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px;">
+                    <label style="color: var(--secondary);"> Dirección Domiciliaria</label>
                 </div>
-                <div style="grid-column: span 1.5;">
+                <div class="full-width">
                     <input type="text" id="p_calle" placeholder="Calle Principal">
                 </div>
                 <div>
-                    <input type="text" id="p_num" placeholder="No.">
+                    <input type="text" id="p_num" placeholder="Número de casa">
                 </div>
-                <div class="full-width">
-                    <input type="text" id="p_ciudad" placeholder="Ciudad (Ej: Quito)" value="Quito">
+                <div>
+                    <input type="text" id="p_ciudad" placeholder="Ciudad (Ej: Quito)">
                 </div>
             </div>
             <button class="btn-turquesa" onclick="registrar()">Guardar Registro</button>
             <div id="res_reg" class="result"></div>
         </div>
 
-        <div class="card" style="border-top-color: var(--secondary);">
-            <h2> Consultar / Validar</h2>
-            <p style="font-size: 0.9rem; color: #78909c; margin-top: 0;">Verifica si una cédula ya existe en el sistema.</p>
-            <div style="display: flex; gap: 10px;">
-                <input type="text" id="c_id" placeholder="Ingrese Cédula">
-                <button class="btn-morado" style="width: 150px; margin-top: 0;" onclick="consultar()">Verificar</button>
+        <div class="card" style="border-top-color: #4caf50;">
+            <h2>📋 Listado de Pacientes</h2>
+            
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <input type="text" id="search_input" placeholder="Buscar por Cédula o Nombre...">
+                <button class="btn-green" style="width: 150px; margin-top:0;" onclick="buscarPacientes()">🔍 Buscar</button>
+                <button class="btn-morado" style="width: 150px; margin-top:0;" onclick="cargarTodos()">🔄 Ver Todos</button>
             </div>
-            <div id="res_cons" class="result"></div>
+
+            <div style="overflow-x: auto;">
+                <table id="tabla_pacientes">
+                    <thead>
+                        <tr>
+                            <th>ID (UUID)</th>
+                            <th>Cédula</th>
+                            <th>Nombre</th>
+                            <th>Email</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
+            </div>
         </div>
 
         <div class="card" style="border-top-color: #ffa726;">
             <h2> Actualizar Domicilio</h2>
-            <p style="font-size: 0.9rem; color: #78909c; margin-top: 0;">Requiere el ID interno (UUID) del paciente.</p>
             <div class="form-grid">
                 <div class="full-width">
                     <label>ID del Paciente (UUID)</label>
-                    <input type="text" id="u_id" placeholder="Pegar ID aquí...">
+                    <input type="text" id="u_id" placeholder="Pegue el ID aquí...">
                 </div>
                 <div class="full-width">
                     <label>Nueva Calle</label>
-                    <input type="text" id="u_calle">
+                    <input type="text" id="u_calle" placeholder="Nueva calle principal">
                 </div>
                 <div>
                     <label>Nuevo Número</label>
-                    <input type="text" id="u_num">
+                    <input type="text" id="u_num" placeholder="Nuevo número">
                 </div>
                 <div>
                     <label>Nueva Ciudad</label>
-                    <input type="text" id="u_ciudad">
+                    <input type="text" id="u_ciudad" placeholder="Nueva ciudad">
                 </div>
             </div>
             <button class="btn-orange" onclick="actualizar()">Actualizar Dirección</button>
@@ -257,41 +290,34 @@
     </div>
 
     <script>
-        // URL DEL GATEWAY (Puerto 5000)
         const API = "http://localhost:5000/api/pacientes";
 
-        // Función genérica para enviar datos
         async function sendRequest(url, method, data, resId) {
             const display = document.getElementById(resId);
-            display.style.display = 'block';
-            display.className = 'result';
-            display.style.backgroundColor = '#eceff1';
-            display.style.color = '#37474f';
-            display.innerText = "⏳ Procesando solicitud...";
-
+            display.style.display = 'block'; display.className = 'result'; display.innerText = "⏳ Procesando...";
             try {
                 const response = await fetch(url, {
                     method: method,
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
+                    body: data ? JSON.stringify(data) : null
                 });
                 const json = await response.json();
-
                 if (response.ok) {
                     display.className = 'result success';
-                    let msg = json.id ? `ID Generado: ${json.id}` : (json.mensaje || 'Operación Exitosa');
-                    display.innerText = `✅ Éxito: ${msg}`;
+                    let msg = json.id ? `ID: ${json.id}` : (json.mensaje || 'Éxito');
+                    display.innerText = `✅ ${msg}`;
+                    if(method === 'POST') {
+                        cargarTodos(); // Recargar tabla
+                        limpiarFormularioRegistro(); // Limpiar campos tras éxito
+                    }
                 } else {
-                    display.className = 'result error';
-                    display.innerText = `❌ Error: ${json.error || JSON.stringify(json)}`;
+                    display.className = 'result error'; display.innerText = `❌ ${json.error}`;
                 }
             } catch (error) {
-                display.className = 'result error';
-                display.innerText = "❌ Error de conexión (Verificar Docker)";
+                display.className = 'result error'; display.innerText = "❌ Error de conexión";
             }
         }
 
-        // 1. REGISTRAR
         function registrar() {
             const data = {
                 tipoIdentificacion: document.getElementById('p_tipoId').value,
@@ -308,45 +334,90 @@
             sendRequest(`${API}/registrar`, 'POST', data, 'res_reg');
         }
 
-        // 2. CONSULTAR (GET)
-        async function consultar() {
-            const id = document.getElementById('c_id').value;
-            if(!id) return alert("Ingrese una cédula");
+        function actualizar() {
+            const id = document.getElementById('u_id').value;
+            if(!id) return alert("Ingrese ID");
+            const data = { calle: document.getElementById('u_calle').value, numero: document.getElementById('u_num').value, ciudad: document.getElementById('u_ciudad').value };
+            sendRequest(`${API}/${id}/domicilio`, 'PUT', data, 'res_upd');
+        }
 
-            const display = document.getElementById('res_cons');
-            display.style.display = 'block';
-            display.innerText = "Consultando...";
-            display.className = 'result';
+        // --- FUNCIONES DE LISTADO ---
 
+        async function cargarTodos() {
+            const tbody = document.querySelector("#tabla_pacientes tbody");
+            tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; color:#777;'>⏳ Cargando registros...</td></tr>";
             try {
-                const r = await fetch(`${API}/validar/${id}`);
-                const j = await r.json();
+                const res = await fetch(`${API}/listar`); 
+                if (!res.ok) throw new Error("Error en la petición");
+                const lista = await res.json();
+                tbody.innerHTML = "";
                 
-                if (j.existe) {
-                    display.className = 'result success';
-                    display.innerHTML = `✅ <b>SI EXISTE:</b> El paciente ${id} está registrado.`;
+                if (lista.length === 0) {
+                     tbody.innerHTML = "<tr><td colspan='5' style='text-align:center;'>No hay pacientes registrados</td></tr>";
                 } else {
-                    display.className = 'result error';
-                    display.innerHTML = `❌ <b>NO EXISTE:</b> No hay registros de ${id}.`;
+                    lista.forEach(p => agregarFila(p));
                 }
-            } catch (e) {
-                display.className = 'result error';
-                display.innerText = "❌ Error de conexión";
+            } catch (e) { 
+                console.error(e);
+                tbody.innerHTML = "<tr><td colspan='5' style='color:red; text-align:center;'>Error al cargar datos. Verifique el servidor.</td></tr>"; 
             }
         }
 
-        // 3. ACTUALIZAR (PUT)
-        function actualizar() {
-            const id = document.getElementById('u_id').value;
-            if(!id) return alert("Ingrese el ID UUID del paciente");
-
-            const data = {
-                calle: document.getElementById('u_calle').value,
-                numero: document.getElementById('u_num').value,
-                ciudad: document.getElementById('u_ciudad').value
-            };
-            sendRequest(`${API}/${id}/domicilio`, 'PUT', data, 'res_upd');
+        async function buscarPacientes() {
+            const query = document.getElementById('search_input').value;
+            const tbody = document.querySelector("#tabla_pacientes tbody");
+            
+            if(!query) return alert("Escriba un nombre o cédula para buscar");
+            
+            tbody.innerHTML = "<tr><td colspan='5' style='text-align:center;'>🔍 Buscando...</td></tr>";
+            try {
+                const res = await fetch(`${API}/buscar?q=${query}`);
+                const lista = await res.json();
+                tbody.innerHTML = "";
+                
+                if(lista.length === 0) {
+                     tbody.innerHTML = "<tr><td colspan='5' style='text-align:center;'>No se encontraron coincidencias</td></tr>";
+                } else {
+                    lista.forEach(p => agregarFila(p));
+                }
+            } catch (e) { 
+                tbody.innerHTML = "<tr><td colspan='5' style='color:red; text-align:center;'>Error en la búsqueda</td></tr>"; 
+            }
         }
+
+        function agregarFila(p) {
+            const tbody = document.querySelector("#tabla_pacientes tbody");
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td style="font-size:0.85em; font-family:monospace; color:#555;">${p.id}</td>
+                <td>${p.identificacion}</td>
+                <td style="font-weight:bold; color:#37474f;">${p.nombre}</td>
+                <td>${p.email}</td>
+                <td><button style="margin:0; padding:6px 12px; font-size:0.8em; background:#7e57c2;" onclick="copiarId('${p.id}')">Copiar ID</button></td>
+            `;
+            tbody.appendChild(tr);
+        }
+
+        function copiarId(id) {
+            document.getElementById('u_id').value = id; 
+            alert("ID copiado al formulario de actualización");
+            // Scroll suave hacia el formulario de abajo
+            document.getElementById('u_id').scrollIntoView({behavior: "smooth", block: "center"});
+        }
+
+        function limpiarFormularioRegistro() {
+            document.getElementById('p_id').value = "";
+            document.getElementById('p_nombre').value = "";
+            document.getElementById('p_email').value = "";
+            document.getElementById('p_tel').value = "";
+            document.getElementById('p_calle').value = "";
+            document.getElementById('p_num').value = "";
+            document.getElementById('p_ciudad').value = "";
+            document.getElementById('p_fecha').value = "";
+        }
+
+        // Cargar lista al inicio
+        window.onload = cargarTodos;
     </script>
 </body>
 </html>
