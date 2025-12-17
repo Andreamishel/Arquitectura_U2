@@ -259,7 +259,7 @@
                     display.className = 'result success';
                     let msg = json.id ? `ID: ${json.id}` : (json.mensaje || 'OK');
                     if(json.slots_creados) msg += ` (${json.slots_creados} Slots)`;
-                    display.innerText = `Médico guardado`;
+                    display.innerText = `Éxito`;
                     
                     if(method === 'POST' && url.includes('crear')) {
                         cargarMedicos(); // Recargar lista al crear
