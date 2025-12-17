@@ -1,6 +1,15 @@
 version: '3.8'
 
 services:
+  web_client:
+    build:
+      context: ./web_client
+      dockerfile: Dockerfile
+    ports:
+      - "8081:80"  # Podrás ver tu web en http://localhost:8081
+    depends_on:
+      - gateway
+
   gateway:
     build: 
       context: ./api_gateway
@@ -10,6 +19,47 @@ services:
     depends_on:
       - medicos
       - pacientes
+      - agendamiento
+
+  broker:
+    build: 
+      context: ./broker   
+      dockerfile: Dockerfile
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    hostname: broker     
+    healthcheck:
+        test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+        interval: 10s
+        timeout: 5s
+        retries: 5
+
+  agendamiento:
+    build: 
+      context: ./microservicio_agendamiento
+      dockerfile: Dockerfile
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./microservicio_agendamiento:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      broker:
+        condition: service_healthy
+
+  notificaciones:
+    build: 
+      context: ./microservicio_notificaciones
+      dockerfile: Dockerfile
+    volumes:
+      - ./microservicio_notificaciones:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      broker:
+        condition: service_healthy
 
   medicos:
     build: 
@@ -30,27 +80,5 @@ services:
       - "5003:5003"
     volumes:
       - ./microservicio_pacientes:/app
-    environment:
-      - PYTHONUNBUFFERED=1
-
-  agendamiento:
-    build: 
-      context: ./microservicio_agendamiento
-      dockerfile: Dockerfile
-    ports:
-      - "5001:5001"
-    volumes:
-      - ./microservicio_agendamiento:/app
-    environment:
-      - PYTHONUNBUFFERED=1
-
-  notificaciones:
-    build: 
-      context: ./microservicio_notificaciones
-      dockerfile: Dockerfile
-    ports:
-      - "5004:5004"
-    volumes:
-      - ./microservicio_notificaciones:/app
     environment:
       - PYTHONUNBUFFERED=1

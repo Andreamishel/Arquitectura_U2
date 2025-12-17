@@ -1,11 +1,17 @@
-from flask import Flask
-from flask_cors import CORS
-from controllers.notificacion_controller import controller
+import sys
+import os
+import time
 
-app = Flask(__name__)
-CORS(app)
+sys.path.append(os.getcwd())
 
-app.register_blueprint(controller)
+from consumers.evento_consumer import iniciar_consumidor
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5004)
+    print(" Iniciando Microservicio de Notificaciones (Modo Worker)...", flush=True)
+    try:
+        # Esto bloquea el programa y se queda escuchando a RabbitMQ para siempre
+        iniciar_consumidor()
+    except KeyboardInterrupt:
+        print(" Deteniendo servicio...", flush=True)
+    except Exception as e:
+        print(f" Error fatal: {e}", flush=True)

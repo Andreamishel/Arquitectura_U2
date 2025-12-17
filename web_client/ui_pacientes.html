@@ -304,8 +304,8 @@
                 const json = await response.json();
                 if (response.ok) {
                     display.className = 'result success';
-                    let msg = json.id ? `ID: ${json.id}` : (json.mensaje || 'Éxito');
-                    display.innerText = `✅ ${msg}`;
+                    let msg = "Paciente guardado"; 
+                    if(json.mensaje) msg = json.mensaje;
                     if(method === 'POST') {
                         cargarTodos(); // Recargar tabla
                         limpiarFormularioRegistro(); // Limpiar campos tras éxito
